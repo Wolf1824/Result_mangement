@@ -1,0 +1,465 @@
+#include <stdio.h>
+#include <string.h>
+#include <ctype.h>
+#include <stdbool.h>
+
+enum subject {Math, Physics, C, JAVA, Python, DataStructure};
+
+enum role {Student, Teacher, Admin};
+
+
+struct course{
+enum subject sub;
+float grade;
+};
+
+
+struct student{
+int id;
+struct course studentsub[5];
+};
+
+
+struct teacher{
+int id;
+enum subject tsub;
+};
+
+
+struct  admin{
+int id;
+};
+
+
+
+struct user{
+char firstname[16];
+char lastname[16];
+char username[16];
+char password[16];
+enum role proffession;
+int id;
+};
+
+
+struct user create_user(char first_name[16],char last_name[16],char username[16],char password[16],int id,int account_type)
+{
+    struct user u1;
+    strcpy(u1.firstname,first_name);
+    strcpy(u1.lastname,last_name);
+    strcpy(u1.username,username);
+    strcpy(u1.password,password);
+    u1.id=id;
+    u1.proffession=account_type-1;
+    printf("user created\n");
+    return u1;
+}
+int generateid()
+{
+    int id=0;
+    int size;
+    struct user u1;
+    FILE* data = fopen("user.txt", "r");
+    fseek (data, 0, SEEK_END);
+    size = ftell(data);
+    if (0 == size) {
+        printf("file is empty\n");
+        fclose(data);
+        return 0;
+    }
+    else{
+        fseek(data,0,SEEK_SET);
+    }
+    while(!feof(data)){
+        char buffer [1];
+		fread(&u1,sizeof(struct user),1,data);
+		fgets(buffer,2,data);
+        printf("%s",buffer);
+		id=u1.id;
+        printf("id : %d\n",id);
+    }
+    printf("last id : %d\n",id);
+    id++;
+    fclose(data);
+    printf("new id : %d\n",id);
+    return id;
+}
+void check()
+{
+    int size;
+    struct student s1;
+    FILE* data = fopen("student.txt", "r");
+    fseek (data, 0, SEEK_END);
+    size = ftell(data);
+    if (0 == size) {
+        printf("file is empty\n");
+        fclose(data);
+        return;
+    }
+    else{
+        fseek(data,0,SEEK_SET);
+    }
+    while(!feof(data)){
+		fread(&s1,sizeof(s1),1,data);
+        printf("id : %f\n",s1.studentsub[0].grade);
+    }
+    fclose(data);
+}
+void enter_record(first_name,last_name,username,password,account_type)
+{
+    int id=generateid();
+    struct user u1=create_user(first_name,last_name,username,password,id,account_type);
+    if(u1.proffession==Student)
+    {
+        write_student(u1);
+    }
+    else if(u1.proffession==Teacher)
+    {
+        write_to_teacher(u1);
+    }
+    else if(u1.proffession==Admin)
+    {
+        write_to_admin(u1);
+    }
+    printf("hello");
+    printf("check id: %d\n",u1.id);
+    write_to_user(u1);
+    printf("Account Created successfully\n");
+}
+void modify_record()
+{
+
+}
+void delete_record()
+{
+
+}
+void write_to_user(struct user u1)
+{
+    FILE* data = fopen("user.txt", "a");
+    fwrite(&u1, sizeof(u1),1,data);
+    fprintf(data,"\n");
+    fclose(data);
+}
+void write_student(struct user u1)
+{
+    int i=0;
+    int c;
+    int flag=0;
+    int temp[5];
+    struct student s1;
+    printf("Register for 5 courses \nenter course code:\n");
+    printf("Math Phyiscs  C  JAVA  Python Data_Structures\n");
+    printf("1       2     3    4     5      6\n");
+    while(i<5)
+    {
+        flag=0;
+        printf("\nenter subject %d\n",i+1);
+        scanf("%d",&c);
+        for(int j=0;j<i;j++)
+        {
+            if(temp[j]==c)
+            {
+                printf("\nSubject already chossen\n\n");
+                flag=1;
+                break;
+            }
+        }
+        if(flag==1)
+        {
+            continue;
+        }
+        switch(c)
+        {
+        case 1:
+            s1.studentsub[i].sub=Math;
+            s1.studentsub[i].grade=10.0;
+            break;
+        case 2:
+            s1.studentsub[i].sub=Physics;
+            s1.studentsub[i].grade=54.0;
+            break;
+        case 3:
+            s1.studentsub[i].sub=C;
+            s1.studentsub[i].grade=36.2;
+            break;
+        case 4:
+            s1.studentsub[i].sub=JAVA;
+            s1.studentsub[i].grade=0.0;
+            break;
+        case 5:
+            s1.studentsub[i].sub=Python;
+            s1.studentsub[i].grade=0.0;
+            break;
+        case 6:
+            s1.studentsub[i].sub=DataStructure;
+            s1.studentsub[i].grade=0.0;
+            break;
+        default:
+            printf("wrong input\n\n");
+            continue;
+            break;
+        }
+        temp[i]=c;
+        i++;
+    }
+    s1.id=u1.id;
+    FILE* data = fopen("student.txt", "a");
+    fwrite(&s1, sizeof(struct student),1,data);
+    fprintf(data,"\n");
+    fclose(data);
+
+}
+void write_to_teacher(struct user u1)
+{
+    struct teacher t1;
+    int c;
+    t1.id=u1.id;
+    printf("Which Subject will you be taking\n");
+    printf("Math Phyiscs  C  JAVA  Python Data_Structures\n");
+    printf("1       2     3    4     5      6\n");
+    printf("\nenter subject\n");
+    scanf("%d",&c);
+    int i=0;
+    do{
+        switch(c)
+            {
+            case 1:
+                t1.tsub=Math;
+                break;
+            case 2:
+                t1.tsub=Physics;
+                break;
+            case 3:
+                t1.tsub=C;
+                break;
+            case 4:
+                t1.tsub=JAVA;
+                break;
+            case 5:
+                t1.tsub=Python;
+                break;
+            case 6:
+                t1.tsub=DataStructure;
+                break;
+            default:
+                printf("wrong input\n\n");
+                continue;
+                break;
+            }
+            i++;
+    }while(i<1);
+    FILE* data = fopen("teacher.txt", "a");
+    fwrite(&t1, sizeof(t1),1,data);
+    fprintf(data,"\n");
+    fclose(data);
+}
+void write_to_admin(struct user u1)
+{
+    struct admin a1;
+    a1.id=u1.id;
+    FILE* data = fopen("admin.txt", "a");
+    fwrite(&a1, sizeof(a1),1,data);
+    fclose(data);
+}
+
+
+
+bool check_username(char username[16])
+{
+    FILE* data = fopen("user.txt", "r");
+	struct user u1;
+	int size;
+	if (NULL != data) {
+        fseek (data, 0, SEEK_END);
+        size = ftell(data);
+        if (0 == size) {
+            printf("file is empty\n");
+            return false;
+        }
+        else{
+            fseek(data,0,SEEK_SET);
+        }
+    }
+    while(!feof(data))
+        {
+        char buffer[1];
+        fread(&u1,sizeof(struct user),1,data);
+        printf("%s",u1.username);
+        fgets(buffer,2,data);
+        printf("%s",buffer);
+        printf("%d",u1.id);
+        if(strcmp(username, u1.username) == 0){
+            fclose(data);
+            return true;
+            }
+        }
+	fclose(data);
+	return false;
+}
+void create_account()
+{
+    char first_name[16];
+	char last_name[16];
+
+	char username[16];
+	char password[16];
+
+
+
+	//Request and store first and last name.
+	printf("\nWhat is your first and last name?\nName: ");
+	scanf("%s %s", first_name, last_name);
+
+	//Prompt user to enter their desired username
+	printf("\nPlease enter the desired username. The max length is 15 characters, no spaces allowed");
+	printf("\nUsername: ");
+	scanf("%s", username);
+
+	//Check that username doesnt already exist
+	while(check_username(username)){
+		printf("\nSorry, that username already exists. Please try again.\nUsername: ");
+		scanf("%s", username);
+	}
+
+	printf("\nUsername accepted!\nPlease enter the desired password. The max length is 15 characters, no spaces allowed\nPassword: ");
+	scanf("%s", password);
+
+    int account_type;
+    printf("\nPlease select the type of account to create: 1) Student\t2) Teacher\t3) Admin\nAccount Type: ");
+	scanf("%d", &account_type);
+    enter_record(first_name,last_name,username,password,account_type);
+}
+
+
+void student_menu()
+{
+
+}
+void teacher_menu()
+{
+
+}
+void login()
+{
+    int usnameflag=0;
+    int loginflag=0;
+    char username[16];
+    char password[16];
+    printf("\nPlease enter the username.\n");
+	printf("Username: ");
+	scanf("%s", username);
+	printf("\nUsername accepted!\nPlease enter the password.\nPassword: ");
+	scanf("%s", password);
+
+
+	FILE* data = fopen("user.txt", "r");
+	struct user u1;
+	int size;
+	if (NULL != data) {
+        fseek (data, 0, SEEK_END);
+        size = ftell(data);
+        if (0 == size) {
+            printf("file is empty\n");
+            printf("User does not exist please create an account");
+            return;
+        }
+        else{
+            fseek(data,0,SEEK_SET);
+        }
+    }
+    while(!feof(data))
+        {
+            char buffer[1];
+            fread(&u1,sizeof(struct user),1,data);
+            printf("%s",u1.username);
+            fgets(buffer,2,data);
+            printf("%s",buffer);
+
+
+            if(strcmp(username, u1.username) == 0)//found username
+                {
+                    usnameflag=1;
+                    if(strcmp(password,u1.password)==0) //correct password
+                    {
+                        printf("login successfull\n");
+                        loginflag=1;
+                    }
+                    else{
+                        printf("wrong username or password\n"); //wrong password
+                    }
+
+                    break;
+                }
+        }
+    fclose(data);
+    if(usnameflag==0)
+    {
+        printf("username not found");
+        return;
+    }
+    if(loginflag==1)
+    {
+        if(u1.proffession==Teacher)
+        {
+            teacher_menu();
+        }
+        else if(u1.proffession==Student)
+        {
+            student_menu();
+        }
+    }
+}
+
+void checkfiles()
+{
+    FILE* check1 = fopen("user.txt", "r");
+    if(check1==NULL)
+    {
+        printf("user file not found error");
+        exit(1);
+    }
+    fclose(check1);
+    FILE* check2 = fopen("student.txt", "r");
+    if(check2==NULL)
+    {
+        printf("student file not found error");
+        exit(1);
+    }
+    fclose(check2);
+    FILE* check3 = fopen("teacher.txt", "r");
+    if(check3==NULL)
+    {
+        printf("teacher file not found error");
+        exit(1);
+    }
+    fclose(check3);
+    printf("All files are exist and are working fine");
+
+}
+
+int main()
+{
+    printf("Welcome to the Result Management System!\n");
+    checkfiles();
+    int choice=1;
+    do{
+        printf("Please select and input the desired action below.\n");
+        printf("1) Login\t2) Create Account\nAction: ");
+        int action = 0;
+        scanf("%d", &action);
+        while((action < 1) || (action > 2)){
+            printf("\nIncorrect input. Please select 1 to login or 2 to create an account. Try Again.\nUser: ");
+            scanf("%d", &action);
+        }
+        if(action == 1){
+            login();
+        }
+        else{ create_account(); }
+        printf("do you wish to proceed then press 1");
+        scanf("%d",&choice);
+    }while(choice==1);
+
+    check();
+    return 0;
+}

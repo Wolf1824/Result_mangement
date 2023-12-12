@@ -1,0 +1,7 @@
+# depslib dependency file v1.0
+1702400122 source:d:\rutgers\sem 5\c\projectversion3\main.c
+	<stdio.h>
+	<string.h>
+	<ctype.h>
+	<stdbool.h>
+
